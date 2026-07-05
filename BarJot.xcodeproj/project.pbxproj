@@ -6,8 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4C5608E82FFA375400A9059C /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 4C5608E72FFA375400A9059C /* Sparkle */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		4C5608A82FF9629800A9059C /* QuickNotepad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickNotepad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C5608A82FF9629800A9059C /* BarJot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BarJot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C5608E82FFA375400A9059C /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,7 +45,7 @@
 		4C5608A92FF9629800A9059C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4C5608A82FF9629800A9059C /* QuickNotepad.app */,
+				4C5608A82FF9629800A9059C /* BarJot.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +53,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4C5608A72FF9629800A9059C /* QuickNotepad */ = {
+		4C5608A72FF9629800A9059C /* BarJot */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4C5608B32FF9629900A9059C /* Build configuration list for PBXNativeTarget "QuickNotepad" */;
+			buildConfigurationList = 4C5608B32FF9629900A9059C /* Build configuration list for PBXNativeTarget "BarJot" */;
 			buildPhases = (
 				4C5608A42FF9629800A9059C /* Sources */,
 				4C5608A52FF9629800A9059C /* Frameworks */,
@@ -63,11 +68,12 @@
 			fileSystemSynchronizedGroups = (
 				4C5608AA2FF9629800A9059C /* QuickNotepad */,
 			);
-			name = QuickNotepad;
+			name = BarJot;
 			packageProductDependencies = (
+				4C5608E72FFA375400A9059C /* Sparkle */,
 			);
 			productName = QuickNotepad;
-			productReference = 4C5608A82FF9629800A9059C /* QuickNotepad.app */;
+			productReference = 4C5608A82FF9629800A9059C /* BarJot.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4C5608A32FF9629800A9059C /* Build configuration list for PBXProject "QuickNotepad" */;
+			buildConfigurationList = 4C5608A32FF9629800A9059C /* Build configuration list for PBXProject "BarJot" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -94,12 +100,15 @@
 			);
 			mainGroup = 4C56089F2FF9629800A9059C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4C5608E62FFA375400A9059C /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4C5608A92FF9629800A9059C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4C5608A72FF9629800A9059C /* QuickNotepad */,
+				4C5608A72FF9629800A9059C /* BarJot */,
 			);
 		};
 /* End PBXProject section */
@@ -250,6 +259,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -292,6 +302,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -326,7 +337,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4C5608A32FF9629800A9059C /* Build configuration list for PBXProject "QuickNotepad" */ = {
+		4C5608A32FF9629800A9059C /* Build configuration list for PBXProject "BarJot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4C5608B12FF9629900A9059C /* Debug */,
@@ -335,7 +346,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4C5608B32FF9629900A9059C /* Build configuration list for PBXNativeTarget "QuickNotepad" */ = {
+		4C5608B32FF9629900A9059C /* Build configuration list for PBXNativeTarget "BarJot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4C5608B42FF9629900A9059C /* Debug */,
@@ -345,6 +356,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4C5608E62FFA375400A9059C /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4C5608E72FFA375400A9059C /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4C5608E62FFA375400A9059C /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4C5608A02FF9629800A9059C /* Project object */;
 }
