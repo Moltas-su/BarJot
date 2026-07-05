@@ -16,8 +16,8 @@
 ## 📥 Installation
 
 ### Pre-built Binary
-1. Navigate to the [Latest Releases](../../releases/latest) page and download `BarJot.zip`.
-2. Unzip the archive and drag `BarJot.app` into your `/Applications` folder.
+1. Navigate to the [Latest Releases](../../releases/latest) page and download `BarJot.dmg`.
+2. Mount the dmg and drag and drop the `BarJot.app` to your Applications folder!
 
 > ⚠️ **Note on macOS Security:** Because BarJot is an independent open-source project, macOS may show an "Unidentified Developer" warning upon first launch. To bypass this, **Right-Click (or Control-Click)** `BarJot.app` in your Applications folder, select **Open**, and confirm. You will only need to do this once.
 
