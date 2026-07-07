@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>SUFeedURL</key>
-	<string>https://moltas.github.io/BarJot/appcast.xml</string>
+	<string>https://moltas-su.github.io/BarJot/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>2yQKvFPWJ6xJ1NBjaNmFO+QpkWqXaa/VMI8BeV3xdP8=</string>
 </dict>
