@@ -1,6 +1,4 @@
 import AppKit
-import SwiftUI
-import Combine
 
 @Observable
 class ClipboardManager {

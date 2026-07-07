@@ -5,15 +5,20 @@ struct ContentView: View {
     @Bindable var state: AppState
     @FocusState private var isFocused: Bool
     @State private var isPurgeHovered: Bool = false
+    /// Debounced display values to avoid re-computing stats on every keystroke.
+    @State private var displayedCharCount: Int = 0
+    @State private var displayedWordCount: Int = 0
+    @State private var statsDebounceTask: Task<Void, Never>? = nil
     
     var body: some View {
         HStack(spacing: 0) {
             if state.showClipboardDrawer {
                 ClipboardDrawerView(state: state)
                     .frame(width: 250)
-                    .transition(.move(edge: .leading))
+                    .transition(.move(edge: .leading).combined(with: .opacity))
                 
                 Divider()
+                    .transition(.opacity)
             }
             
             VStack(spacing: 0) {
@@ -22,15 +27,12 @@ struct ContentView: View {
                     .font(state.fontForCurrentSize())
                     .focused($isFocused)
                     .background(TextViewIntrospector())
-                    .padding(.bottom, 4)
                     .foregroundColor(state.colorMode.textColor)
                 
                 HStack {
                     HStack(spacing: 12) {
                         Button(action: {
-                            withAnimation {
-                                state.showClipboardDrawer.toggle()
-                            }
+                            state.showClipboardDrawer.toggle()
                         }) {
                             Image(systemName: state.showClipboardDrawer ? "sidebar.left" : "list.clipboard")
                                 .foregroundColor(state.showClipboardDrawer ? .accentColor : state.colorMode.textColor.opacity(0.7))
@@ -38,7 +40,16 @@ struct ContentView: View {
                         .buttonStyle(.plain)
                         .help("Toggle Clipboard History Drawer")
                         
-                        Text("\(state.text.count) characters  •  \(wordCount) words")
+                        Button(action: {
+                            state.isHeld.toggle()
+                        }) {
+                            Image(systemName: state.isHeld ? "pin.fill" : "pin")
+                                .foregroundColor(state.isHeld ? .accentColor : state.colorMode.textColor.opacity(0.7))
+                        }
+                        .buttonStyle(.plain)
+                        .help(state.isHeld ? "Unpin window (currently held open)" : "Pin window open while you copy things")
+                        
+                        Text("\(displayedCharCount) characters  •  \(displayedWordCount) words")
                             .font(.system(size: 10, weight: .light))
                         
                         Button(action: {
@@ -86,15 +97,30 @@ struct ContentView: View {
             )
             .background(state.colorMode.backgroundColor)
             .preferredColorScheme(state.colorMode.colorScheme)
+            // Opt the main panel out of the drawer animation so the toolbar
+            // and button icon swap stay completely static during the transition.
+            .animation(nil, value: state.showClipboardDrawer)
             .onAppear {
                 isFocused = true
                 state.pasteClipboardIfNeeded()
+                updateStats()
+            }
+            .onChange(of: state.text) { _, _ in
+                // Debounce stats update — avoids iterating the full string on every keystroke.
+                statsDebounceTask?.cancel()
+                statsDebounceTask = Task {
+                    try? await Task.sleep(for: .milliseconds(300))
+                    guard !Task.isCancelled else { return }
+                    updateStats()
+                }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: state.showClipboardDrawer)
     }
     
-    private var wordCount: Int {
-        state.text.split { $0.isWhitespace }.count
+    private func updateStats() {
+        displayedCharCount = state.text.count
+        displayedWordCount = state.text.split { $0.isWhitespace }.count
     }
 }
 
@@ -201,6 +227,10 @@ struct TextViewIntrospector: NSViewRepresentable {
             scrollView.drawsBackground = false
             scrollView.scrollerStyle = .overlay
             scrollView.autohidesScrollers = true
+            
+            // Lazy layout: only lay out the visible portion of a large document,
+            // dramatically reducing RAM usage with large notes.
+            textView.layoutManager?.allowsNonContiguousLayout = true
             
             // Force layout update so the cursor moves to the new inset position
             if let container = textView.textContainer {

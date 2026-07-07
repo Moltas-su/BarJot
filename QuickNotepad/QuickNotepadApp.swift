@@ -3,6 +3,14 @@ import AppKit
 
 #if canImport(Sparkle)
 import Sparkle
+
+/// Suppresses Sparkle's first-run permission modal. We manage the
+/// auto-check preference ourselves via the Settings toggle instead.
+class SparkleDelegate: NSObject, SPUUpdaterDelegate {
+    func updaterShouldPromptForPermissionToCheck(forUpdates updater: SPUUpdater) -> Bool {
+        return false
+    }
+}
 #endif
 
 @main
@@ -25,11 +33,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     
     #if canImport(Sparkle)
     var updaterController: SPUStandardUpdaterController?
+    private let sparkleDelegate = SparkleDelegate()
     #endif
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         #if canImport(Sparkle)
-        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: sparkleDelegate,
+            userDriverDelegate: nil
+        )
         #endif
         
         // 1. Configure the popover
@@ -48,9 +61,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             let baseSize = newSize.dimensions
             let newWidth = self.appState.showClipboardDrawer ? baseSize.width + 250 : baseSize.width
             self.popover.contentSize = NSSize(width: newWidth, height: baseSize.height)
-            self.popover.contentViewController = NSHostingController(
-                rootView: ContentView(state: self.appState)
-            )
         }
         
         appState.onAlwaysOnTopChanged = { [weak self] isAlwaysOnTop in
@@ -74,6 +84,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             }
         }
         
+        appState.onHoldStateChanged = { [weak self] isHeld in
+            guard let self else { return }
+            // When held, pin the popover open and float it above other windows.
+            // When released, restore normal behavior unless alwaysOnTop is also active.
+            let shouldPin = isHeld || self.appState.alwaysOnTop
+            self.popover.behavior = shouldPin ? .applicationDefined : .transient
+            self.popover.contentViewController?.view.window?.level = shouldPin ? .floating : .normal
+        }
+        
+        #if canImport(Sparkle)
+        // Apply the saved auto-check preference, and keep it in sync with Settings.
+        // We do this after the updater has started so it doesn't conflict with
+        // Sparkle's internal startup state.
+        DispatchQueue.main.async {
+            self.updaterController?.updater.automaticallyChecksForUpdates = self.appState.autoCheckForUpdates
+        }
+        appState.onAutoCheckForUpdatesChanged = { [weak self] enabled in
+            self?.updaterController?.updater.automaticallyChecksForUpdates = enabled
+        }
+        #endif
+        
         // 3. Setup the Menu Bar Icon
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem?.button {
@@ -86,6 +117,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         
         // 4. Setup global shortcut
         setupGlobalShortcut()
+        
+        // 5. Fallback: close popover when app loses focus.
+        // Fixes a bug where Apple Intelligence text selection overlays swallow
+        // the click-outside event, preventing .transient from dismissing the popover.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidResignActive),
+            name: NSApplication.didResignActiveNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func appDidResignActive() {
+        // Only close if not pinned open and not showing context menu.
+        guard !appState.alwaysOnTop, !appState.isHeld, !isShowingContextMenu else { return }
+        if popover.isShown {
+            popover.performClose(nil)
+        }
     }
     
     // MARK: - Global Shortcut
@@ -238,6 +287,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     // MARK: - Popover Delegate
     
     func popoverDidClose(_ notification: Notification) {
+        // Reset the hold state whenever the popover closes so it never
+        // carries over to the next session.
+        appState.isHeld = false
         if !isShowingContextMenu {
             appState.scheduleClear()
         }

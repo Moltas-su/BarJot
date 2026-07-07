@@ -62,7 +62,7 @@ struct SettingsView: View {
                 }
                 .tag(SettingsTab.appearance)
             
-            AboutSettingsTab()
+            AboutSettingsTab(state: state)
                 .tabItem {
                     Label(SettingsTab.about.rawValue, systemImage: SettingsTab.about.icon)
                 }
@@ -247,6 +247,7 @@ struct ThemePreviewView: View {
 // MARK: - About Tab
 
 struct AboutSettingsTab: View {
+    @Bindable var state: AppState
     private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     
@@ -267,13 +268,23 @@ struct AboutSettingsTab: View {
             }
             
             #if canImport(Sparkle)
-            Button("Check for Updates…") {
-                if let appDelegate = NSApp.delegate as? AppDelegate,
-                   let updaterController = appDelegate.updaterController {
-                    updaterController.checkForUpdates(nil)
+            VStack(spacing: 6) {
+                Button("Check for Updates…") {
+                    if let appDelegate = NSApp.delegate as? AppDelegate,
+                       let updaterController = appDelegate.updaterController {
+                        updaterController.checkForUpdates(nil)
+                    }
                 }
+                .buttonStyle(.link)
+                
+                Toggle(isOn: $state.autoCheckForUpdates) {
+                    Text("Automatically check for updates")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .toggleStyle(.checkbox)
+                .controlSize(.small)
             }
-            .buttonStyle(.link)
             .padding(.top, -8)
             #endif
             

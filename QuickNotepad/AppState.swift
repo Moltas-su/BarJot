@@ -144,6 +144,15 @@ enum PurgeDelay: Int, CaseIterable, Identifiable {
 class AppState {
     var text: String = ""
     
+    /// Cached font name — resolved once at init since font availability
+    /// never changes at runtime. Avoids repeated NSFont lookups on every render.
+    @ObservationIgnored
+    private let resolvedFontName: String?
+    
+    /// Cached purge sound — loaded once to avoid disk I/O on every clear().
+    @ObservationIgnored
+    private let purgeSound: NSSound?
+    
     var colorMode: ColorMode = .liquidGlass {
         didSet {
             UserDefaults.standard.set(colorMode.rawValue, forKey: "colorMode")
@@ -208,6 +217,14 @@ class AppState {
         }
     }
     
+    /// Temporary session pin — keeps the popover open while copying things.
+    /// Not persisted; resets automatically when the popover closes.
+    var isHeld: Bool = false {
+        didSet {
+            onHoldStateChanged?(isHeld)
+        }
+    }
+    
     var purgeDelay: PurgeDelay = .fiveSeconds {
         didSet {
             UserDefaults.standard.set(purgeDelay.rawValue, forKey: "purgeDelay")
@@ -233,6 +250,13 @@ class AppState {
         }
     }
     
+    var autoCheckForUpdates: Bool = true {
+        didSet {
+            UserDefaults.standard.set(autoCheckForUpdates, forKey: "autoCheckForUpdates")
+            onAutoCheckForUpdatesChanged?(autoCheckForUpdates)
+        }
+    }
+    
     /// Callback for when the popover size changes - set by AppDelegate.
     @ObservationIgnored
     var onPopoverSizeChanged: ((PopoverSize) -> Void)?
@@ -245,7 +269,37 @@ class AppState {
     @ObservationIgnored
     var onDrawerStateChanged: ((Bool) -> Void)?
     
+    /// Callback for when the hold/pin state changes - set by AppDelegate.
+    @ObservationIgnored
+    var onHoldStateChanged: ((Bool) -> Void)?
+    
+    /// Callback for when auto-check for updates changes - set by AppDelegate.
+    @ObservationIgnored
+    var onAutoCheckForUpdatesChanged: ((Bool) -> Void)?
+    
     init() {
+        // Resolve font availability once at startup.
+        if NSFont(name: "Tiempos", size: 13) != nil {
+            self.resolvedFontName = "Tiempos"
+        } else if NSFont(name: "Tiempos Text", size: 13) != nil {
+            self.resolvedFontName = "Tiempos Text"
+        } else {
+            self.resolvedFontName = nil
+        }
+        
+        // Pre-load the purge sound once.
+        if let customSoundURL = Bundle.main.url(forResource: "Trash_crumble", withExtension: "mp3"),
+           let sound = NSSound(contentsOf: customSoundURL, byReference: true) {
+            self.purgeSound = sound
+        } else {
+            let trashSoundPath = "/System/Library/Components/CoreAudio.component/Contents/SharedSupport/SystemSounds/finder/empty trash.aif"
+            if let trashSound = NSSound(contentsOfFile: trashSoundPath, byReference: true) {
+                self.purgeSound = trashSound
+            } else {
+                self.purgeSound = NSSound(named: "Tink")
+            }
+        }
+        
         if UserDefaults.standard.object(forKey: "hasSeenTutorial") == nil {
             self.text = """
             Welcome to BarJot! 👋
@@ -315,23 +369,17 @@ class AppState {
         if self.enableClipboardHistory {
             ClipboardManager.shared.startWatching()
         }
+        
+        if UserDefaults.standard.object(forKey: "autoCheckForUpdates") != nil {
+            self.autoCheckForUpdates = UserDefaults.standard.bool(forKey: "autoCheckForUpdates")
+        }
     }
     
     func clear() {
         if !text.isEmpty {
             text = ""
             if playSoundEffects {
-                if let customSoundURL = Bundle.main.url(forResource: "Trash_crumble", withExtension: "mp3"),
-                   let sound = NSSound(contentsOf: customSoundURL, byReference: true) {
-                    sound.play()
-                } else {
-                    let trashSoundPath = "/System/Library/Components/CoreAudio.component/Contents/SharedSupport/SystemSounds/finder/empty trash.aif"
-                    if let trashSound = NSSound(contentsOfFile: trashSoundPath, byReference: true) {
-                        trashSound.play()
-                    } else {
-                        NSSound(named: "Tink")?.play()
-                    }
-                }
+                purgeSound?.play()
             }
         }
     }
@@ -358,24 +406,10 @@ class AppState {
     /// Returns a font for the current fontSize setting.
     func fontForCurrentSize() -> Font {
         let size = CGFloat(fontSize.rawValue)
-        if NSFont(name: "Tiempos", size: size) != nil {
-            return .custom("Tiempos", size: size)
-        } else if NSFont(name: "Tiempos Text", size: size) != nil {
-            return .custom("Tiempos Text", size: size)
+        if let name = resolvedFontName {
+            return .custom(name, size: size)
         } else {
             return .system(size: size, weight: .regular, design: .serif)
-        }
-    }
-    
-    /// Returns an NSFont for the current fontSize setting.
-    func nsFontForCurrentSize() -> NSFont {
-        let size = CGFloat(fontSize.rawValue)
-        if let font = NSFont(name: "Tiempos", size: size) {
-            return font
-        } else if let font = NSFont(name: "Tiempos Text", size: size) {
-            return font
-        } else {
-            return NSFont.systemFont(ofSize: size)
         }
     }
     
@@ -430,21 +464,22 @@ class AppState {
 
 // MARK: - Key Code Mapping
 
+private let keyCodeMapping: [UInt32: String] = [
+    0x00: "A", 0x01: "S", 0x02: "D", 0x03: "F", 0x04: "H",
+    0x05: "G", 0x06: "Z", 0x07: "X", 0x08: "C", 0x09: "V",
+    0x0B: "B", 0x0C: "Q", 0x0D: "W", 0x0E: "E", 0x0F: "R",
+    0x10: "Y", 0x11: "T", 0x12: "1", 0x13: "2", 0x14: "3",
+    0x15: "4", 0x16: "6", 0x17: "5", 0x18: "=", 0x19: "9",
+    0x1A: "7", 0x1B: "-", 0x1C: "8", 0x1D: "0", 0x1E: "]",
+    0x1F: "O", 0x20: "U", 0x21: "[", 0x22: "I", 0x23: "P",
+    0x25: "L", 0x26: "J", 0x28: "K", 0x2C: "/", 0x2D: "N",
+    0x2E: "M", 0x31: "Space", 0x24: "Return", 0x30: "Tab",
+    0x33: "Delete", 0x35: "Esc",
+    0x7A: "F1", 0x78: "F2", 0x63: "F3", 0x76: "F4",
+    0x60: "F5", 0x61: "F6", 0x62: "F7", 0x64: "F8",
+    0x65: "F9", 0x6D: "F10", 0x67: "F11", 0x6F: "F12",
+]
+
 func keyCodeToString(_ keyCode: UInt32) -> String {
-    let mapping: [UInt32: String] = [
-        0x00: "A", 0x01: "S", 0x02: "D", 0x03: "F", 0x04: "H",
-        0x05: "G", 0x06: "Z", 0x07: "X", 0x08: "C", 0x09: "V",
-        0x0B: "B", 0x0C: "Q", 0x0D: "W", 0x0E: "E", 0x0F: "R",
-        0x10: "Y", 0x11: "T", 0x12: "1", 0x13: "2", 0x14: "3",
-        0x15: "4", 0x16: "6", 0x17: "5", 0x18: "=", 0x19: "9",
-        0x1A: "7", 0x1B: "-", 0x1C: "8", 0x1D: "0", 0x1E: "]",
-        0x1F: "O", 0x20: "U", 0x21: "[", 0x22: "I", 0x23: "P",
-        0x25: "L", 0x26: "J", 0x28: "K", 0x2C: "/", 0x2D: "N",
-        0x2E: "M", 0x31: "Space", 0x24: "Return", 0x30: "Tab",
-        0x33: "Delete", 0x35: "Esc",
-        0x7A: "F1", 0x78: "F2", 0x63: "F3", 0x76: "F4",
-        0x60: "F5", 0x61: "F6", 0x62: "F7", 0x64: "F8",
-        0x65: "F9", 0x6D: "F10", 0x67: "F11", 0x6F: "F12",
-    ]
-    return mapping[keyCode] ?? "Key\(keyCode)"
+    keyCodeMapping[keyCode] ?? "Key\(keyCode)"
 }

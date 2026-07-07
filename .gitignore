@@ -22,3 +22,6 @@ project.xcworkspace/
 
 # Swift Package Manager
 .build/
+
+# Private
+MEMORY.md
