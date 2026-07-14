@@ -1,4 +1,4 @@
-BarJot** is a native macOS menu bar scratchpad designed for quick notes, code snippets, and stripping text formatting without cluttering your desktop with temporary files.
+BarJot is a native macOS menu bar scratchpad designed for quick notes, code snippets, and stripping text formatting without cluttering your desktop with temporary files.
 
 ---
 
