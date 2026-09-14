@@ -25,3 +25,8 @@ project.xcworkspace/
 
 # Private
 MEMORY.md
+
+# Release build artifacts
+build_dmg/
+build_output/
+*.dmg
