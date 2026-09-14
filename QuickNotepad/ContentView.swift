@@ -232,6 +232,9 @@ struct TextViewIntrospector: NSViewRepresentable {
             // dramatically reducing RAM usage with large notes.
             textView.layoutManager?.allowsNonContiguousLayout = true
             
+            // Enable the native red-underline spell checker.
+            textView.isContinuousSpellCheckingEnabled = true
+            
             // Force layout update so the cursor moves to the new inset position
             if let container = textView.textContainer {
                 textView.layoutManager?.textContainerChangedGeometry(container)
