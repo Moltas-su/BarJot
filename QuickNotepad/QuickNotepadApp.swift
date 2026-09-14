@@ -25,6 +25,8 @@ struct MenuBarApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
+    static private(set) var shared: AppDelegate!
+    
     var statusItem: NSStatusItem?
     let popover = NSPopover()
     let appState = AppState()
@@ -35,6 +37,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     var updaterController: SPUStandardUpdaterController?
     private let sparkleDelegate = SparkleDelegate()
     #endif
+    
+    override init() {
+        super.init()
+        AppDelegate.shared = self
+    }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         #if canImport(Sparkle)

@@ -270,10 +270,7 @@ struct AboutSettingsTab: View {
             #if canImport(Sparkle)
             VStack(spacing: 6) {
                 Button("Check for Updates…") {
-                    if let appDelegate = NSApp.delegate as? AppDelegate,
-                       let updaterController = appDelegate.updaterController {
-                        updaterController.checkForUpdates(nil)
-                    }
+                    AppDelegate.shared.updaterController?.checkForUpdates(nil)
                 }
                 .buttonStyle(.link)
                 

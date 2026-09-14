@@ -6,15 +6,15 @@
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
         <item>
-            <title>Version 1.2</title>
+            <title>Version 1.3</title>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:version>3</sparkle:version>
-            <sparkle:shortVersionString>1.2</sparkle:shortVersionString>
-            <pubDate>Mon, 14 Sep 2026 20:08:08 +0000</pubDate>
-            <enclosure url="https://github.com/moltas-su/BarJot/releases/download/v1.2/BarJot-1.2.dmg"
-                       sparkle:version="3"
-                       sparkle:shortVersionString="1.2"
-                       sparkle:edSignature="sparkle:edSignature="+zj63wgtKYb6qF2EqdXH+X4SrDzVH1UviYPo3jlU7UhzeuJbBgv3LTpWJk7ymmnIQvPQqiETBeBdljTygOOFDQ==" length="14557236""
+            <sparkle:shortVersionString>1.3</sparkle:shortVersionString>
+            <pubDate>Mon, 14 Sep 2026 20:21:54 +0000</pubDate>
+            <enclosure url="https://github.com/moltas-su/BarJot/releases/download/v1.3/BarJot-1.3.dmg"
+                       sparkle:version="4"
+                       sparkle:shortVersionString="1.3"
+                       sparkle:edSignature="sparkle:edSignature="Yyl074y0XKOCA8Imm2e+O3nFq+X9ltY5P9OqAFf0r4pBuTtXNqeEiv+wd9mZz6IkxDMWBhKuKZnSpi6P0hHGDw==" length="14557454""
                        type="application/octet-stream" />
         </item>
     </channel>
