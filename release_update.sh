@@ -2,7 +2,7 @@
 set -e
 
 echo "🚀 Building BarJot version 1.3..."
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project BarJot.xcodeproj -scheme BarJot -configuration Release clean build -derivedDataPath build_output CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO > /dev/null
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project BarJot.xcodeproj -scheme BarJot -configuration Release clean build -derivedDataPath build_output CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=YES CODE_SIGNING_ALLOWED=YES > /dev/null
 
 echo "📦 Packaging DMG..."
 rm -rf build_dmg BarJot-1.3.dmg
