@@ -13,6 +13,7 @@ enum ColorMode: String, CaseIterable, Identifiable {
     case nord = "Nord"
     case forest = "Forest"
     case liquidGlass = "Liquid Glass"
+    case sunset = "Sunset"
     
     nonisolated var id: String { self.rawValue }
     
@@ -32,6 +33,8 @@ enum ColorMode: String, CaseIterable, Identifiable {
             return Color(red: 0.10, green: 0.15, blue: 0.12)
         case .liquidGlass:
             return Color.clear
+        case .sunset:
+            return Color(red: 0.98, green: 0.90, blue: 0.85)
         }
     }
     
@@ -51,6 +54,8 @@ enum ColorMode: String, CaseIterable, Identifiable {
             return Color(red: 0.85, green: 0.90, blue: 0.87)
         case .liquidGlass:
             return Color.primary
+        case .sunset:
+            return Color(red: 0.35, green: 0.15, blue: 0.20)
         }
     }
     
@@ -58,7 +63,7 @@ enum ColorMode: String, CaseIterable, Identifiable {
         switch self {
         case .system, .liquidGlass:
             return nil
-        case .light, .sepia:
+        case .light, .sepia, .sunset:
             return .light
         case .dark, .nord, .forest:
             return .dark
