@@ -5,6 +5,8 @@ set -e
 VERSION=$(grep -m1 'MARKETING_VERSION' BarJot.xcodeproj/project.pbxproj | awk -F'=' '{print $2}' | tr -d ' ;')
 BUILD=$(grep -m1 'CURRENT_PROJECT_VERSION' BarJot.xcodeproj/project.pbxproj | awk -F'=' '{print $2}' | tr -d ' ;')
 
+NOTES=${1:-"Updated BarJot to version $VERSION."}
+
 echo "🚀 Building BarJot version $VERSION (build $BUILD)..."
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project BarJot.xcodeproj -scheme BarJot -configuration Release clean build -derivedDataPath build_output CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=YES CODE_SIGNING_ALLOWED=YES > /dev/null
 
@@ -60,6 +62,6 @@ git commit -m "Bump version to $VERSION, update appcast"
 git push origin main
 
 echo "🏷 Creating GitHub Release..."
-gh release create "v$VERSION" "BarJot-$VERSION.dmg" --title "BarJot $VERSION" --notes "Updated BarJot to version $VERSION."
+gh release create "v$VERSION" "BarJot-$VERSION.dmg" --title "BarJot $VERSION" --notes "$NOTES"
 
 echo "✅ All done! Sparkle updates should now work."
