@@ -22,10 +22,7 @@ To release a new update to your users, you should **never do it manually**. Alwa
    - Go to your Target Settings -> General.
    - Increment the **Version** (e.g., from `1.4.1` to `1.5`).
    - Increment the **Build** number (e.g., from `4` to `5`).
-3. **Update the Release Script:**
-   - Open `release_update.sh`.
-   - Update the hardcoded version strings inside the script to match your new version (e.g., change `1.4.1` to `1.5`, and `version="6"` to `version="7"`).
-4. **Run the Script:**
+3. **Run the Script:**
    Open your terminal in the root folder of BarJot and run:
    ```bash
    ./release_update.sh

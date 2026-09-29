@@ -1,15 +1,19 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Building BarJot version 1.4.1..."
+# Extract versions from Xcode project automatically
+VERSION=$(grep -m1 'MARKETING_VERSION' BarJot.xcodeproj/project.pbxproj | awk -F'=' '{print $2}' | tr -d ' ;')
+BUILD=$(grep -m1 'CURRENT_PROJECT_VERSION' BarJot.xcodeproj/project.pbxproj | awk -F'=' '{print $2}' | tr -d ' ;')
+
+echo "🚀 Building BarJot version $VERSION (build $BUILD)..."
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project BarJot.xcodeproj -scheme BarJot -configuration Release clean build -derivedDataPath build_output CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=YES CODE_SIGNING_ALLOWED=YES > /dev/null
 
 echo "📦 Packaging DMG..."
-rm -rf build_dmg BarJot-1.4.1.dmg
+rm -rf build_dmg "BarJot-$VERSION.dmg"
 mkdir -p build_dmg/Applications
 cp -R build_output/Build/Products/Release/BarJot.app build_dmg/
 ln -s /Applications build_dmg/Applications
-hdiutil create -volname "BarJot" -srcfolder build_dmg -ov -format UDZO BarJot-1.4.1.dmg > /dev/null
+hdiutil create -volname "BarJot" -srcfolder build_dmg -ov -format UDZO "BarJot-$VERSION.dmg" > /dev/null
 
 echo "🔑 Signing with Sparkle (You may be prompted for Keychain access)..."
 SPARKLE_BIN="build_output/SourcePackages/artifacts/sparkle/Sparkle/bin"
@@ -22,7 +26,7 @@ if [ ! -f "$SPARKLE_BIN/sign_update" ]; then
     SPARKLE_BIN=$(dirname "$(find build_output -name sign_update | head -n 1)")
 fi
 
-SIGNATURE=$("$SPARKLE_BIN/sign_update" BarJot-1.4.1.dmg)
+SIGNATURE=$("$SPARKLE_BIN/sign_update" "BarJot-$VERSION.dmg")
 
 echo "📝 Updating docs/appcast.xml..."
 DATE=$(date -u +"%a, %d %b %Y %H:%M:%S +0000")
@@ -35,14 +39,14 @@ cat <<XML > docs/appcast.xml
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
         <item>
-            <title>Version 1.4.1</title>
+            <title>Version $VERSION</title>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:version>3</sparkle:version>
-            <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
+            <sparkle:version>$BUILD</sparkle:version>
+            <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
             <pubDate>$DATE</pubDate>
-            <enclosure url="https://github.com/moltas-su/BarJot/releases/download/v1.4.1/BarJot-1.4.1.dmg"
-                       sparkle:version="6"
-                       sparkle:shortVersionString="1.4.1"
+            <enclosure url="https://github.com/moltas-su/BarJot/releases/download/v$VERSION/BarJot-$VERSION.dmg"
+                       sparkle:version="$BUILD"
+                       sparkle:shortVersionString="$VERSION"
                        $SIGNATURE
                        type="application/octet-stream" />
         </item>
@@ -52,10 +56,10 @@ XML
 
 echo "☁️ Committing and pushing to GitHub..."
 git add QuickNotepad/AppState.swift QuickNotepad/SettingsView.swift QuickNotepad/QuickNotepadApp.swift BarJot.xcodeproj/project.pbxproj docs/appcast.xml release_update.sh
-git commit -m "Bump version to 1.4.1, add Sunset theme, and update appcast"
+git commit -m "Bump version to $VERSION, update appcast"
 git push origin main
 
 echo "🏷 Creating GitHub Release..."
-gh release create v1.4.1 BarJot-1.4.1.dmg --title "BarJot 1.4.1 - Sunset Theme" --notes "Added Sunset theme and fixed Sparkle updates."
+gh release create "v$VERSION" "BarJot-$VERSION.dmg" --title "BarJot $VERSION" --notes "Updated BarJot to version $VERSION."
 
 echo "✅ All done! Sparkle updates should now work."
