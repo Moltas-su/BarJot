@@ -14,7 +14,9 @@
   </a>
   <img src="https://img.shields.io/badge/Platform-macOS%2014%2B-lightgrey" alt="macOS 14+" />
   <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9" />
-  <img src="https://img.shields.io/github/license/moltas-su/BarJot" alt="License" />
+  <a href="LICENSE">
+    <img src="https://img.shields.io/github/license/Moltas-su/BarJot?color=blue" alt="License" />
+  </a>
 </p>
 
 ---
